@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import '../blocs/login_bloc.dart';
 
 import 'home_page.dart';
 
@@ -48,31 +51,14 @@ class _LoginPageState extends State<LoginPage> {
             SizedBox(
               height: 40.0,
             ),
-            TextField(
-              keyboardType: TextInputType.emailAddress,
-              controller: _usernameController,
-              decoration: InputDecoration(
-                hintText: 'you@example.com',
-                errorText: _isValidUsername ? null : 'Invalid username',
-                labelText: 'USERNAME',
-                labelStyle: TextStyle(fontSize: 15.0, letterSpacing: 0.7),
-              ),
-            ),
+            usernameField(),
             SizedBox(
               height: 20.0,
             ),
             Stack(
               alignment: Alignment.centerRight,
               children: <Widget>[
-                TextField(
-                  controller: _passwordController,
-                  obscureText: !_showPass,
-                  decoration: InputDecoration(
-                    errorText: _isValidPassword ? null : 'Invalid password',
-                    labelText: 'PASSWORD',
-                    labelStyle: TextStyle(fontSize: 15.0, letterSpacing: 0.7),
-                  ),
-                ),
+                passwordField(),
                 GestureDetector(
                   onTap: onToggleShowPass,
                   child: Text(
@@ -88,23 +74,7 @@ class _LoginPageState extends State<LoginPage> {
             SizedBox(
               height: 30.0,
             ),
-            Container(
-              width: double.infinity,
-              child: RaisedButton(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(7.0),
-                ),
-                child: Text(
-                  'SIGN IN',
-                  style: TextStyle(
-                    color: Colors.white,
-                    letterSpacing: 1.0,
-                  ),
-                ),
-                color: Colors.blue[700],
-                onPressed: onSignInClicked,
-              ),
-            ),
+            submitButton(),
             SizedBox(
               height: 40.0,
             ),
@@ -130,7 +100,7 @@ class _LoginPageState extends State<LoginPage> {
               ],
             ),
             SizedBox(
-              height: 70.0,
+              height: 50.0,
             ),
           ],
         ),
@@ -164,5 +134,56 @@ class _LoginPageState extends State<LoginPage> {
             .push(MaterialPageRoute(builder: (context) => HomePage()));
       }
     });
+  }
+
+  Widget usernameField() {
+    return StreamBuilder(
+      stream: loginBloc.email,
+      builder: (context, snapshot) => TextField(
+        keyboardType: TextInputType.emailAddress,
+        onChanged: loginBloc.changeEmail,
+        decoration: InputDecoration(
+          hintText: 'you@example.com',
+          errorText: snapshot.error,
+          labelText: 'USERNAME',
+          labelStyle: TextStyle(fontSize: 15.0, letterSpacing: 0.7),
+        ),
+      ),
+    );
+  }
+
+  Widget passwordField() {
+    return StreamBuilder(
+      stream: loginBloc.password,
+      builder: (context, snapshot) => TextField(
+        onChanged: loginBloc.changePassword,
+        obscureText: !_showPass,
+        decoration: InputDecoration(
+          errorText: snapshot.error,
+          labelText: 'PASSWORD',
+          labelStyle: TextStyle(fontSize: 15.0, letterSpacing: 0.7),
+        ),
+      ),
+    );
+  }
+
+  Widget submitButton() {
+    return Container(
+      width: double.infinity,
+      child: RaisedButton(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(7.0),
+        ),
+        child: Text(
+          'SIGN IN',
+          style: TextStyle(
+            color: Colors.white,
+            letterSpacing: 1.0,
+          ),
+        ),
+        color: Colors.blue[700],
+        onPressed: onSignInClicked,
+      ),
+    );
   }
 }
