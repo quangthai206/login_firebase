@@ -1,25 +1,18 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:loginfirebase/src/blocs/provider.dart';
 import '../blocs/login_bloc.dart';
 
-import 'home_page.dart';
+class LoginPage extends StatelessWidget {
+  final _passwordController = TextEditingController();
 
-class LoginPage extends StatefulWidget {
-  @override
-  _LoginPageState createState() => _LoginPageState();
-}
-
-class _LoginPageState extends State<LoginPage> {
-  bool _showPass = false;
-  bool _isValidUsername = true;
-  bool _isValidPassword = true;
-
-  TextEditingController _usernameController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
+  void dispose() {
+    _passwordController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final loginBloc = Provider.of(context);
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Container(
@@ -51,21 +44,26 @@ class _LoginPageState extends State<LoginPage> {
             SizedBox(
               height: 40.0,
             ),
-            usernameField(),
+            usernameField(loginBloc),
             SizedBox(
               height: 20.0,
             ),
             Stack(
               alignment: Alignment.centerRight,
               children: <Widget>[
-                passwordField(),
+                passwordField(loginBloc),
                 GestureDetector(
-                  onTap: onToggleShowPass,
-                  child: Text(
-                    _showPass ? 'HIDE' : 'SHOW',
-                    style: TextStyle(
-                      color: Colors.blue,
-                      fontSize: 13.0,
+                  onTap: () {
+                    loginBloc.toggleShowPass(_passwordController.text);
+                  },
+                  child: StreamBuilder(
+                    stream: loginBloc.password,
+                    builder: (context, snapshot) => Text(
+                      loginBloc.isPasswordShowing ? 'HIDE' : 'SHOW',
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontSize: 13.0,
+                      ),
                     ),
                   ),
                 ),
@@ -74,7 +72,7 @@ class _LoginPageState extends State<LoginPage> {
             SizedBox(
               height: 30.0,
             ),
-            submitButton(),
+            submitButton(loginBloc),
             SizedBox(
               height: 40.0,
             ),
@@ -108,35 +106,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void onToggleShowPass() {
-    setState(() {
-      _showPass = !_showPass;
-    });
-  }
-
-  void onSignInClicked() {
-    setState(() {
-      if (_usernameController.text.length < 6 ||
-          !_usernameController.text.contains('@')) {
-        _isValidUsername = false;
-      } else {
-        _isValidUsername = true;
-      }
-
-      if (_passwordController.text.length < 6) {
-        _isValidPassword = false;
-      } else {
-        _isValidPassword = true;
-      }
-
-      if (_isValidUsername && _isValidPassword) {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => HomePage()));
-      }
-    });
-  }
-
-  Widget usernameField() {
+  Widget usernameField(LoginBloc loginBloc) {
     return StreamBuilder(
       stream: loginBloc.email,
       builder: (context, snapshot) => TextField(
@@ -152,12 +122,13 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget passwordField() {
+  Widget passwordField(LoginBloc loginBloc) {
     return StreamBuilder(
       stream: loginBloc.password,
       builder: (context, snapshot) => TextField(
+        controller: _passwordController,
         onChanged: loginBloc.changePassword,
-        obscureText: !_showPass,
+        obscureText: !loginBloc.isPasswordShowing,
         decoration: InputDecoration(
           errorText: snapshot.error,
           labelText: 'PASSWORD',
@@ -167,23 +138,27 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget submitButton() {
+  Widget submitButton(LoginBloc loginBloc) {
     return Container(
       width: double.infinity,
-      child: RaisedButton(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(7.0),
-        ),
-        child: Text(
-          'SIGN IN',
-          style: TextStyle(
-            color: Colors.white,
-            letterSpacing: 1.0,
-          ),
-        ),
-        color: Colors.blue[700],
-        onPressed: onSignInClicked,
-      ),
+      child: StreamBuilder(
+          stream: loginBloc.submitValid,
+          builder: (context, snapshot) {
+            return RaisedButton(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(7.0),
+              ),
+              child: Text(
+                'SIGN IN',
+                style: TextStyle(
+                  color: Colors.white,
+                  letterSpacing: 1.0,
+                ),
+              ),
+              color: Colors.blue[700],
+              onPressed: snapshot.hasError ? null : () {},
+            );
+          }),
     );
   }
 }
