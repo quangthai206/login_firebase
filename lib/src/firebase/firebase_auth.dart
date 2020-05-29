@@ -15,6 +15,17 @@ class FireAuth {
     });
   }
 
+  void signIn(String email, String pass, Function onSuccess,
+      Function(String) onSignInError) {
+    _firebaseAuth
+        .signInWithEmailAndPassword(email: email, password: pass)
+        .then((authResult) {
+      onSuccess();
+    }).catchError((err) {
+      onSignInError('Incorrect username or password.');
+    });
+  }
+
   void _createUser(String userId, String name, String phone, Function onSuccess,
       Function(String) onRegisterError) {
     var user = {"name": name, "phone": phone};

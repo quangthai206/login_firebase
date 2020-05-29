@@ -4,6 +4,7 @@ import 'package:loginfirebase/src/blocs/auth_bloc.dart';
 import 'package:loginfirebase/src/resources/dialog/loading_dialog.dart';
 import 'package:loginfirebase/src/resources/dialog/msg_dialog.dart';
 import 'package:loginfirebase/src/resources/home_page.dart';
+import 'package:loginfirebase/src/resources/login_page.dart';
 
 class RegisterPage extends StatefulWidget {
   @override

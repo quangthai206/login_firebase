@@ -1,14 +1,29 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:loginfirebase/src/blocs/provider.dart';
+import 'package:loginfirebase/src/resources/dialog/loading_dialog.dart';
+import 'package:loginfirebase/src/resources/dialog/msg_dialog.dart';
+import 'package:loginfirebase/src/resources/home_page.dart';
 import 'package:loginfirebase/src/resources/register_page.dart';
 import '../blocs/auth_bloc.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  AuthBloc loginBloc;
+
+  void didChangeDependencies() {
+    if (loginBloc == null) {
+      loginBloc = Provider.of(context);
+    }
+    super.didChangeDependencies();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final loginBloc = Provider.of(context);
-
     return Scaffold(
       body: Container(
         constraints: BoxConstraints.expand(),
@@ -159,13 +174,22 @@ class LoginPage extends StatelessWidget {
                 ),
               ),
               color: Colors.blue[700],
-              onPressed: snapshot.hasData
-                  ? () {
-                      loginBloc.submit(context);
-                    }
-                  : null,
+              onPressed: snapshot.hasData ? _onSignInClicked : null,
             );
           }),
     );
+  }
+
+  void _onSignInClicked() {
+    LoadingDialog.showLoadingDialog(context, 'Signing in...');
+    loginBloc.signIn(() {
+      LoadingDialog.hideLoadingDialog(context);
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => HomePage(),
+      ));
+    }, (msg) {
+      LoadingDialog.hideLoadingDialog(context);
+      MsgDialog.showMsgDialog(context, 'Sign-in', msg);
+    });
   }
 }

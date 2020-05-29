@@ -44,12 +44,6 @@ class AuthBloc extends Validators {
     }
   }
 
-  void submit(BuildContext context) {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => HomePage(),
-    ));
-  }
-
   bool isValid(String name, String email, String pass, String phone) {
     if (name == null || name.length == 0) {
       _nameController.sink.addError("Enter name");
@@ -81,5 +75,10 @@ class AuthBloc extends Validators {
   void signUp(String email, String pass, String phone, String name,
       Function onSuccess, Function(String) onError) {
     _fireAuth.signUp(email, pass, name, phone, onSuccess, onError);
+  }
+
+  void signIn(Function onSuccess, Function(String) onSignInError) {
+    _fireAuth.signIn(_emailController.value, _passwordController.value,
+        onSuccess, onSignInError);
   }
 }
