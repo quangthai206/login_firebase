@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'login_bloc.dart';
+import 'auth_bloc.dart';
 
 class Provider extends InheritedWidget {
-  final bloc = LoginBloc();
+  final bloc = AuthBloc();
 
   Provider({Key key, Widget child}) : super(key: key, child: child);
 
@@ -12,7 +12,7 @@ class Provider extends InheritedWidget {
     return true;
   }
 
-  static LoginBloc of(BuildContext context) {
+  static AuthBloc of(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<Provider>().bloc;
   }
 }
